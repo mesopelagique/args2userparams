@@ -1,0 +1,14 @@
+# Node.js
+nodejs/node_modules/
+nodejs/dist/
+
+# Python
+python/__pycache__/
+python/tests/__pycache__/
+python/.pytest_cache/
+*.pyc
+*.pyo
+
+# General
+.DS_Store
+*.log

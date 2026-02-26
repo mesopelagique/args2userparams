@@ -1,0 +1,28 @@
+{
+  "name": "args2userparams",
+  "version": "1.0.0",
+  "description": "Convert command-line arguments to a structured JSON string for 4D --user-param",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "args2userparams": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["4d", "user-param", "args", "json", "cli"],
+  "license": "MIT",
+  "dependencies": {
+    "yargs-parser": "^21.1.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.0.0",
+    "@types/yargs-parser": "^21.0.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.4",
+    "typescript": "^5.5.4"
+  }
+}
