@@ -3,33 +3,24 @@
  * CLI entry point.
  *
  * Usage:
- *   args2userparams [--camelcase] [args...]
+ *   args2userparams [args...]
  *
- * The optional --camelcase flag (consumed by this wrapper) converts
- * kebab-case option names to camelCase in the JSON output.
- * All other arguments are forwarded to the parser and emitted as JSON.
- *
- * Environment variable alternative: set ARGS2USERPARAMS_CAMELCASE=1
+ * All arguments are parsed and emitted as a JSON string to stdout.
+ * To enable camelCase conversion, use the library API directly:
+ *   import { args2userparamsJSON } from 'args2userparams';
+ *   args2userparamsJSON(argv, { camelCase: true });
  *
  * Examples:
  *   args2userparams --verbose --output=file.txt arg1
  *   # → {"verbose":true,"output":"file.txt","_":["arg1"]}
  *
- *   args2userparams --camelcase --my-flag --output-file=out.txt
- *   # → {"myFlag":true,"outputFile":"out.txt","_":[]}
+ *   args2userparams --tag foo --tag bar
+ *   # → {"tag":["foo","bar"],"_":[]}
  */
 
 import { args2userparamsJSON } from './index';
 
 const argv = process.argv.slice(2);
 
-// Detect and strip our own --camelcase flag before forwarding
-const camelCaseIdx = argv.indexOf('--camelcase');
-const camelCase =
-  camelCaseIdx !== -1 || process.env['ARGS2USERPARAMS_CAMELCASE'] === '1';
+process.stdout.write(args2userparamsJSON(argv) + '\n');
 
-if (camelCaseIdx !== -1) {
-  argv.splice(camelCaseIdx, 1);
-}
-
-process.stdout.write(args2userparamsJSON(argv, { camelCase }) + '\n');

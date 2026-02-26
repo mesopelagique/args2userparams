@@ -10,9 +10,11 @@ Usage as a library:
     json_str = args2userparams_json(sys.argv[1:], camel_case=False)
 
 Usage as a CLI:
-    python3 args2userparams.py [--camelcase] [args...]
+    python3 args2userparams.py [args...]
 
-    ARGS2USERPARAMS_CAMELCASE=1 python3 args2userparams.py [args...]
+    To enable camelCase conversion, use the library API directly:
+        from args2userparams import args2userparams_json
+        args2userparams_json(argv, camel_case=True)
 
 Supported argument forms:
     --flag              Boolean flag           → {"flag": true}
@@ -24,12 +26,12 @@ Supported argument forms:
     --key val2          Repeated option        → {"key": ["val1", "val2"]}
     positional          Positional argument    → {"_": ["positional"]}
 
-camelCase conversion:
-    --my-flag           → {"myFlag": true}   (with camel_case=True)
+camelCase conversion (library only):
+    args2userparams_json(argv, camel_case=True)
+    --my-flag           → {"myFlag": true}
 """
 
 import json
-import os
 import re
 import sys
 from typing import Any
@@ -125,14 +127,4 @@ def args2userparams_json(argv: list, camel_case: bool = False) -> str:
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    _argv = sys.argv[1:]
-
-    # Detect and strip our own --camelcase flag
-    _camel_case = (
-        '--camelcase' in _argv
-        or os.environ.get('ARGS2USERPARAMS_CAMELCASE') == '1'
-    )
-    if '--camelcase' in _argv:
-        _argv = [a for a in _argv if a != '--camelcase']
-
-    print(args2userparams_json(_argv, camel_case=_camel_case))
+    print(args2userparams_json(sys.argv[1:]))

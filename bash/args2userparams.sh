@@ -3,13 +3,14 @@
 #
 # Usage:
 #   source args2userparams.sh
-#   USER_PARAM=$(args2userparams [--camelcase] [args...])
+#   USER_PARAM=$(args2userparams [args...])
 #   tool4d --user-param "$USER_PARAM"
 #
 # Or run directly (prints JSON to stdout):
-#   bash args2userparams.sh [--camelcase] [args...]
+#   bash args2userparams.sh [args...]
 #
-# Environment variable alternative:
+# To enable camelCase key conversion, set the env var before calling:
+#   ARGS2USERPARAMS_CAMELCASE=1 args2userparams [args...]
 #   ARGS2USERPARAMS_CAMELCASE=1 bash args2userparams.sh [args...]
 #
 # Supported argument forms:
@@ -20,7 +21,7 @@
 #   --key v1 --key v2   Repeated option        → {"key":["v1","v2"]}
 #   positional          Positional argument    → {"_":["positional"]}
 #
-# camelCase conversion (--camelcase or ARGS2USERPARAMS_CAMELCASE=1):
+# camelCase conversion (ARGS2USERPARAMS_CAMELCASE=1):
 #   --my-flag           → {"myFlag":true}
 
 set -euo pipefail
@@ -72,21 +73,10 @@ args2userparams() {
     local camel_case=false
     local -a argv=("$@")
 
-    # Check env var
+    # Check env var (code-level configuration set by the calling script)
     if [[ "${ARGS2USERPARAMS_CAMELCASE:-0}" == "1" ]]; then
         camel_case=true
     fi
-
-    # Detect and strip our own --camelcase flag
-    local -a filtered=()
-    for arg in "${argv[@]}"; do
-        if [[ "$arg" == "--camelcase" ]]; then
-            camel_case=true
-        else
-            filtered+=("$arg")
-        fi
-    done
-    argv=("${filtered[@]+"${filtered[@]}"}")
 
     # Associative array for key→value storage
     declare -A kv_single   # key → single value

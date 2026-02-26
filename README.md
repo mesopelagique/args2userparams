@@ -28,13 +28,17 @@ Implementations are provided for **Node.js / TypeScript**, **Python**, and
 
 ### camelCase mode
 
-Pass `--camelcase` (CLI) or `camelCase: true` (library) to convert
-kebab-case option names to camelCase keys:
+Set `camelCase: true` (Node.js), `camel_case=True` (Python), or the env var
+`ARGS2USERPARAMS_CAMELCASE=1` (Bash) in your **code** to convert kebab-case
+option names to camelCase keys:
 
 ```
 --my-flag          →  "myFlag": true
 --output-file=a.txt →  "outputFile": "a.txt"
 ```
+
+> **Note:** camelCase is a code-level option, not a CLI argument.
+> Configure it in your script, not by passing it alongside user arguments.
 
 ---
 
@@ -73,17 +77,15 @@ args2userparamsJSON(argv: string[], options?: { camelCase?: boolean }): string
 
 ```bash
 # After building (npm run build) the binary is at dist/cli.js
-node dist/cli.js [--camelcase] [args...]
+node dist/cli.js [args...]
 
 # Examples
 node dist/cli.js --verbose --output=file.txt arg1
 # {"_":["arg1"],"verbose":true,"output":"file.txt"}
 
-node dist/cli.js --camelcase --my-flag --output-file=out.txt
-# {"_":[],"myFlag":true,"outputFile":"out.txt"}
+node dist/cli.js --tag foo --tag bar
+# {"_":[],"tag":["foo","bar"]}
 ```
-
-Set `ARGS2USERPARAMS_CAMELCASE=1` as an alternative to `--camelcase`.
 
 #### Install globally
 
@@ -129,17 +131,15 @@ args2userparams_json(argv: list, camel_case: bool = False) -> str
 ### CLI usage
 
 ```bash
-python3 python/args2userparams.py [--camelcase] [args...]
+python3 python/args2userparams.py [args...]
 
 # Examples
 python3 python/args2userparams.py --verbose --output=file.txt arg1
 # {"verbose":true,"output":"file.txt","_":["arg1"]}
 
-python3 python/args2userparams.py --camelcase --my-flag --output-file=out.txt
-# {"myFlag":true,"outputFile":"out.txt","_":[]}
+python3 python/args2userparams.py --tag foo --tag bar
+# {"tag":["foo","bar"],"_":[]}
 ```
-
-Set `ARGS2USERPARAMS_CAMELCASE=1` as an alternative to `--camelcase`.
 
 ### Tests
 
@@ -166,17 +166,23 @@ tool4d --user-param "$USER_PARAM"
 ### CLI usage
 
 ```bash
-bash bash/args2userparams.sh [--camelcase] [args...]
+bash bash/args2userparams.sh [args...]
 
 # Examples
 bash bash/args2userparams.sh --verbose --output=file.txt arg1
 # {"verbose":true,"output":"file.txt","_":["arg1"]}
 
-bash bash/args2userparams.sh --camelcase --my-flag --output-file=out.txt
-# {"myFlag":true,"outputFile":"out.txt","_":[]}
+bash bash/args2userparams.sh --tag foo --tag bar
+# {"tag":["foo","bar"],"_":[]}
 ```
 
-Set `ARGS2USERPARAMS_CAMELCASE=1` as an alternative to `--camelcase`.
+To enable camelCase, set `ARGS2USERPARAMS_CAMELCASE=1` in your script:
+
+```bash
+# In your wrapper script (code-level configuration):
+ARGS2USERPARAMS_CAMELCASE=1 bash bash/args2userparams.sh --my-flag
+# {"myFlag":true,"_":[]}
+```
 
 ### Tests
 
@@ -192,7 +198,9 @@ bash bash/tests/test_args2userparams.sh
 #!/usr/bin/env bash
 source "$(dirname "$0")/bash/args2userparams.sh"
 
-USER_PARAM=$(args2userparams --camelcase "$@")
+# Enable camelCase at the code level (not as a user argument)
+ARGS2USERPARAMS_CAMELCASE=1
+USER_PARAM=$(args2userparams "$@")
 
 tool4d \
   --project MyProject.4DProject \

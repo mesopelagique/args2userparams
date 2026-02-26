@@ -68,12 +68,12 @@ assert_eq "positional args in _" \
     '{"_":["arg1","arg2"]}' \
     "$(bash "$A2UP" arg1 arg2)"
 
-# --- camelCase ---
-result="$(bash "$A2UP" --camelcase --my-flag)"
-assert_contains "camelCase: --my-flag → myFlag" '"myFlag":true' "$result"
+# --- camelCase (via env var, code-level configuration) ---
+result="$(ARGS2USERPARAMS_CAMELCASE=1 bash "$A2UP" --my-flag)"
+assert_contains "env var camelCase: --my-flag → myFlag" '"myFlag":true' "$result"
 
-result="$(bash "$A2UP" --camelcase --output-file=out.txt)"
-assert_contains "camelCase: --output-file → outputFile" '"outputFile":"out.txt"' "$result"
+result="$(ARGS2USERPARAMS_CAMELCASE=1 bash "$A2UP" --output-file=out.txt)"
+assert_contains "env var camelCase: --output-file → outputFile" '"outputFile":"out.txt"' "$result"
 
 # --- double-dash separator ---
 result="$(bash "$A2UP" --verbose -- --not-a-flag positional)"
@@ -84,10 +84,6 @@ assert_contains "double-dash: --not-a-flag is positional" '"--not-a-flag"' "$res
 assert_eq "empty input" \
     '{"_":[]}' \
     "$(bash "$A2UP")"
-
-# --- env var camelCase ---
-result="$(ARGS2USERPARAMS_CAMELCASE=1 bash "$A2UP" --my-flag)"
-assert_contains "env var camelCase" '"myFlag":true' "$result"
 
 echo ""
 echo "Results: ${pass} passed, ${fail} failed"
